@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎁 Celebrarte es un privilegio 🎁</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    height: 100vh;
+    background: radial-gradient(circle at center, #f6a700, #003378, #003378);
+    overflow: hidden;
+    font-family: 'Times New Roman', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    text-align:center;
+    position:relative;
+  }
+
+  .top-image {
+    position: absolute;
+    top: -140px;
+    width: 150%;
+    max-width: 350px;
+    z-index:2;
+  }
+
+ .gift-container {
+  position: relative;
+  cursor: pointer;
+  z-index: 3;
+  top: 50px;   /* 👈 mueve el regalo 40px hacia abajo */
+}
+
+  .gift-img {
+    width:100%;
+    max-width:250px;
+    transition: transform 1s ease;
+  }
+
+  .gift-img.opened {
+    transform: translateY(-250px) rotate(-15deg);
+  }
+
+  #openBtn {
+    margin-top:20px;
+    padding:15px 30px;
+    background-color:#000380;
+    color:white;
+    border:none;
+    font-size:1.2rem;
+    border-radius:8px;
+    cursor:pointer;
+    z-index:3;
+    position:relative;
+    margin-bottom:50px;
+   font-family: 'Times new roman', monospace; /* <- Aquí */
+  }
+
+  .message {
+    position:absolute;
+    top:50px;
+    text-align:center;
+    opacity:0;
+    z-index:2;
+    transition: opacity 1s ease;
+    max-width:90%;
+  }
+
+  .message h1 {
+    font-size:1rem;
+    color:#f3c332;
+    text-shadow:0 0 10px #f3c332,0 0 20px #f3c332;
+  }
+
+  .number-23 {
+    font-size:2rem;
+    font-weight:bold;
+    color:#f3c332;
+    text-shadow:0 0 10px #fff,0 0 20px #ff0;
+    margin-top:10px;
+  }
+
+  .cake {
+    margin-top:30px;
+    width:90px;
+    animation: floatCake 3s ease-in-out infinite;
+  }
+
+  @keyframes floatCake {
+    0%,100% { transform: translateY(0);}
+    50% { transform: translateY(-10px);}
+  }
+
+  .balloon {
+    position:absolute;
+    width:50px;
+    height:70px;
+    border-radius:50%;
+    background: radial-gradient(circle at top,#ff4b4b,#d00000);
+    box-shadow: inset -5px -5px 10px rgba(255,255,255,0.6), inset 5px 5px 10px rgba(0,0,0,0.2);
+    z-index:1;
+    opacity:0.9;
+  }
+
+  .balloon::after {
+    content:'';
+    position:absolute;
+    bottom:-15px;
+    left:50%;
+    width:2px;
+    height:40px;
+    background:white;
+    border-radius:2px;
+    transform:translateX(-50%) rotate(0deg);
+  }
+
+  canvas {
+    position:fixed;
+    top:0;
+    left:0;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .letter-btn {
+    margin-top:20px;
+    padding:10px 25px;
+    background-color:#efb810;
+    color:white;
+    border:none;
+    font-size:1.2rem;
+    border-radius:50px;
+    cursor:pointer;
+    transition: background-color 0.3s;
+    z-index:3;
+    font-family: 'Times new roman', sans-serif; /* <- Aquí se cambia la fuente */
+  }
+
+  .letter-btn:hover {
+    background-color:#efb810;
+  }
+
+    .letter-card {
+  display: none;
+  background: white;
+  color: black;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  text-align: justify;
+  line-height: 1.6;
+  
+  position: fixed;     /* 🔹 fijo en pantalla */
+  top: 50%;            /* 🔹 centro vertical */
+  left: 50%;           /* 🔹 centro horizontal */
+  transform: translate(-50%, -50%); /* 🔹 ajustar exacto centro */
+  
+  z-index: 9999;       /* 🔹 muy arriba, sobre todo */
+  overflow-y: auto;
+  max-height: 90vh;    /* 🔹 adaptable a pantalla */
+}
+
+.letter-card {
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+ #closeLetter {
+  text-align:left;
+  cursor:pointer;
+  font-size:1rem;
+  margin-bottom:10px;
+}
+
+  #closeLetter:hover { color:#8e2de2; }
+
+  .letter-card img { margin-top:10px; border-radius:5px; }
+
+  /* --- Carrusel estilo cine --- */
+/* Botón volver */
+#backFromCarrusel {
+  position: fixed;      /* siempre fijo en la ventana */
+  top: 10px;            /* borde superior */
+  left: 10px;           /* borde izquierdo */
+  z-index: 200;         /* sobre todo */
+  padding: 8px 12px;
+  font-size: 1.1rem;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Cartel centrado horizontalmente y más pequeño */
+/* Cartel centrado horizontalmente y más pequeño */
+.cartel {
+  position: relative;
+  margin: 90px auto 50px auto;
+  text-align: center;
+  font-size: 1.1rem;       /* un poquito más pequeño */
+  font-weight: bold;
+  width:190%;               /* menor ancho relativo */
+  max-width: 390px;         /* límite máximo más pequeño */
+  padding: 19px 8px;        /* menos espacio interno */
+  background: white;
+  color: #171a4a;
+  border: 8px solid #fed353;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.5);
+  line-height: 1.2em;
+}
+
+/* Adaptación móvil */
+@media (max-width: 600px) {
+  .cartel {
+    font-size: 0.9rem;
+    width: 90%;            /* ocupa la mayor parte del móvil */
+    max-width: 290px;      /* límite máximo menor */
+    padding: 8px 5px;
+    margin-top: 60px;
+  }
+}
+
+  .cartel::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    border-radius: 10px;
+    padding: 5px;
+    background: repeating-radial-gradient(circle,gold 0px,gold 6px,#191c66 7px,#080f4b 18px);
+    -webkit-mask: linear-gradient(#e8c39e 0 0) content-box, linear-gradient(#e8c39e 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    animation: parpadeo 1.5s infinite;
+
+     }
+
+    /* 🟡 Bombillitos alrededor */
+    .cartel::before {
+      content: "";
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      border-radius: 10px;
+      padding: 5px;
+      background: repeating-radial-gradient(circle,
+        gold 0px,
+        gold 6px,
+        #0000a6 7px,
+        #40bce7 18px
+      );
+      -webkit-mask: 
+        linear-gradient(#000 0 0) content-box, 
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      animation: parpadeo 1.5s infinite;
+  }
+  @keyframes parpadeo { 0%,100%{filter:brightness(1);} 50%{filter:brightness(1.5);} }
+
+  .carrusel-container {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 30px 0;
+    scrollbar-width: none;
+  }
+  .carrusel-container::-webkit-scrollbar { display:none; }
+
+  .cinta {
+    display:inline-flex;
+    gap:8px;
+    padding:15px;
+    background:black;
+    border:8px solid black;
+    border-radius:10px;
+    box-shadow:0 0 20px rgba(0,0,0,0.7);
+    position: relative;
+  }
+  .cinta::before, .cinta::after {
+    content:"";
+    position:absolute;
+    left:0; right:0;
+    height:15px;
+    background: repeating-linear-gradient(to right, white 0, white 12px, black 12px, black 30px);
+  }
+  .cinta::before { top:0; }
+  .cinta::after { bottom:0; }
+
+  .foto {
+    flex:0 0 auto;
+    width:180px;
+    height:240px;
+    background:#fff;
+    border:4px solid #000;
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .foto img { width:100%; height:100%; object-fit:cover; display:block; }
+
+  .foto-debajo {
+  text-align: center;
+  margin: 20px auto;
+}
+
+.foto-debajo img {
+  width: 30%;       /* ocupa el 60% del ancho del contenedor */
+  max-width: 300px; /* no crece demasiado en pantallas grandes */
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* Adaptación móvil */
+@media (max-width: 300px) {
+  .foto-debajo img {
+    width: 60%;  /* ocupa casi todo el ancho */
+    max-width: none;
+  }
+    .letter-card img { width:100px; height:auto; }
+  }
+
+/* ================================
+   ✅ Ajustes responsive añadidos
+   ================================ */
+
+/* Evita desbordes de imágenes en cualquier contenedor */
+img { max-width: 100%; height: auto; }
+
+/* Botón principal y regalo más flexibles en móviles sin tocar tu base */
+@media (max-width: 600px) {
+  #openBtn {
+    width: 90%;
+    max-width: 320px;
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+  .gift-img {
+    width: 85%;
+    max-width: 260px;
+  }
+  .gift-container { top: 30px; }
+  .message h1 { font-size: .95rem; line-height: 1.3; }
+  .number-23 { font-size: 1.6rem; }
+  .cake { width: 75px; }
+}
+
+/* Top image no se salga en pantallas pequeñas */
+@media (max-width: 480px) {
+  .top-image {
+    width: 100%;
+    max-width: 300px;
+    top: -50px;
+  }
+}
+
+/* Carrusel: fotos más compactas en móviles medianos */
+@media (max-width: 768px) {
+  .foto { width: 140px; height: 190px; }
+}
+
+/* Permite scroll vertical en pantallas muy bajas (teclado abierto, etc.) */
+@media (max-height: 620px) {
+  body { overflow-y: auto; }
+}
+
+/* Carta: relleno y tamaño de texto más cómodo en móvil */
+@media (max-width: 600px) {
+  .letter-card {
+    width: 80%;
+    padding: 20px;
+    font-size: .95rem;
+  }
+}
+
+/* Imagen debajo del carrusel más grande en móvil */
+@media (max-width: 600px) {
+  .foto-debajo img {
+    width: 90%;
+    max-width: 260px;
+  }
+}
+</style>
+</head>
+<body>
+
+<img src="festin1.png" alt="Imagen superior" class="top-image" />
+
+<div class="gift-container" id="giftContainer">
+  <img src="regalo2.png" class="gift-img" id="giftBox" alt="regalo">
+</div>
+
+<button id="openBtn">🎁 Ábreme 🎁</button>
+
+<!-- Imagen debajo de los botones -->
+<div style="margin-top: 20px;">
+  <img src="fondo2.png" alt="fondo2" style="max-width: 300px; width: 100%;" />
+</div>
+
+<div class="message" id="message">
+  <h1>🎉 ¡Feliz Cumpleaños David! 🎉🎁</h1>
+  <div class="number-23">🎊26🎊</div>
+  <img src="pastel.png" class="cake" alt="Pastel" />
+  <br><br>
+  <button class="letter-btn" id="openLetterBtn">💝He guardado esto para ti💝</button>
+  <button class="letter-btn" id="alsoOpenBtn">💖 Haz clic y que empiece la escena!💖</button>
+
+ <!-- Imagen debajo del botón -->
+<div style="margin-top: 15px;">
+  <img id="imagenFija" src="soldador.png" alt="Foto" style="max-width: 200px; width: 90%;" />
+</div>
+
+  <!-- Carta completa -->
+  <div class="letter-card" id="letterCard">
+    <!-- Flecha para volver -->
+    <div id="closeLetter">⬅Volver</div>
+
+    <p>
+      🌟 Nació un campeón 🌟<br /><br />
+      El día que naciste, el mundo ganó  
+a un campeón de alma, de fuerza y de amor.  
+No fue solo un cumpleaños, fue el inicio  
+de una historia que hoy celebro contigo.
+      <br /><br />
+      Eres grande, no por lo que haces,  
+sino por cómo miras, cómo abrazas,  
+por tu forma de estar, de cuidar, de inspirar,  
+por enseñarme que amar también es crecer.❣️
+<br /><br />
+      Contigo aprendí a ser mejor,  
+a ver la vida con más color,  
+a confiar, a sanar, a volar,  
+a encontrar belleza en lo más simple y real. 💝<br /><br />
+      Eres increíble, y no lo digo por decir,  
+lo siento en cada gesto, en cada porvenir.  
+Te amo con todo lo que soy y seré,  
+porque contigo, amor, siempre floreceré.❣️
+    </p>
+
+    <div style="display:flex; justify-content:center; gap:15px; margin-top:15px;">
+      <img src="fondo1.jpeg" alt="fondo1" style="width:120px; height:auto; border-radius:5px;">
+    </div>
+  </div>
+</div>
+
+<canvas id="fireworks"></canvas>
+
+<!-- Contenedor oculto del carrusel -->
+<div id="carruselPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(to bottom,#2823bc,#b89572, #2823bc); z-index:50; overflow:auto; padding-top:50px;">
+<button id="backFromCarrusel" style="position:absolute; top:20px; left:20px; z-index:100; padding:10px 15px; font-size:1.2rem; border:none; background:transparent; color:white; cursor:pointer;">⬅Volver</button>
+
+  <div class="cartel">🎞️Lo nuestro no cabe en una pantalla, pero si en cada latido.📸</div>
+  <div class="carrusel-container">
+    <div class="cinta" id="cintaCarrusel">
+      <!-- 👇 Aquí pones tus fotos -->
+      <div class="foto"><img src="foto1.jpeg" alt="Foto 1"></div>
+      <div class="foto"><img src="foto2.jpeg" alt="Foto 2"></div>
+      <div class="foto"><img src="foto3.jpeg" alt="Foto 3"></div>
+      <div class="foto"><img src="foto4.jpeg" alt="Foto 4"></div>
+      <div class="foto"><img src="foto5.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto6.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto7.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto8.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto9.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto10.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto11.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto12.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto13.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto14.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto15.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto16.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto17.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto18.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto19.jpeg" alt="Foto 5"></div>
+      <div class="foto"><img src="foto20.jpeg" alt="Foto 5"></div>
+    </div>
+  </div>
+  <div class="foto-debajo">
+  <img src="atardecer.jpg" alt="Atardecer" />
+</div>
+</div>
+<script>
+const btn = document.getElementById('openBtn');
+const giftBox = document.getElementById('giftBox');
+const giftContainer = document.getElementById('giftContainer');
+const message = document.getElementById('message');
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext("2d");
+const openLetterBtn = document.getElementById('openLetterBtn');
+const alsoOpenBtn = document.getElementById('alsoOpenBtn');
+const letterCard = document.getElementById('letterCard');
+const closeLetter = document.getElementById("closeLetter");
+const carruselPage = document.getElementById("carruselPage");
+const backFromCarrusel = document.getElementById("backFromCarrusel");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+/* ✅ Redimensiona el canvas al rotar/cambiar tamaño */
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+let giftOpened = false; /* ✅ bandera para controlar el estado del regalo */
+
+btn.addEventListener('click', () => {
+  giftBox.classList.add('opened');
+  btn.style.display = 'none';
+  message.style.opacity = 1;
+  giftContainer.style.display = 'none';
+  giftOpened = true; /* ✅ marcamos abierto */
+  launchFireworks();
+  addBalloons();
+});
+
+// Al abrir la carta
+openLetterBtn.addEventListener('click', () => { 
+  letterCard.style.display = 'block'; 
+  giftContainer.style.display = 'none'; // ocultar el regalo
+});
+
+// Al cerrar la carta
+closeLetter.addEventListener("click", () => {
+  letterCard.style.display = "none";
+  message.style.opacity = 1;
+  // NO mostrar el regalo aquí
+});
+
+alsoOpenBtn.addEventListener('click', () => {
+  message.style.display = 'none';
+  giftContainer.style.display = 'none';
+  carruselPage.style.display = 'block';
+
+  const carrusel = carruselPage.querySelector(".carrusel-container");
+  const cinta = document.getElementById("cintaCarrusel");
+
+  // Duplicar fotos para scroll infinito
+  cinta.innerHTML += cinta.innerHTML;
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  carrusel.addEventListener("mousedown",(e)=>{isDown=true;startX=e.pageX-carrusel.offsetLeft;scrollLeft=carrusel.scrollLeft;});
+  carrusel.addEventListener("mouseleave",()=>{isDown=false;});
+  carrusel.addEventListener("mouseup",()=>{isDown=false;});
+  carrusel.addEventListener("mousemove",(e)=>{if(!isDown)return;e.preventDefault();const x=e.pageX-carrusel.offsetLeft;const walk=(x-startX)*2;carrusel.scrollLeft=scrollLeft-walk;});
+
+  carrusel.addEventListener("scroll",()=>{ const maxScroll = cinta.scrollWidth/2;
+    if(carrusel.scrollLeft>=maxScroll){carrusel.scrollLeft=carrusel.scrollLeft-maxScroll;}
+    else if(carrusel.scrollLeft<=0){carrusel.scrollLeft=cinta.scrollWidth/2+carrusel.scrollLeft;}
+  });
+
+  /* ✅ Soporte táctil para arrastrar en móviles */
+  carrusel.addEventListener("touchstart",(e)=>{isDown=true;startX=e.touches[0].pageX-carrusel.offsetLeft;scrollLeft=carrusel.scrollLeft;},{passive:true});
+  carrusel.addEventListener("touchend",()=>{isDown=false;},{passive:true});
+  carrusel.addEventListener("touchmove",(e)=>{if(!isDown)return;const x=e.touches[0].pageX-carrusel.offsetLeft;const walk=(x-startX)*2;carrusel.scrollLeft=scrollLeft-walk;},{passive:true});
+});
+
+// Al volver del carrusel
+backFromCarrusel.addEventListener('click', () => {
+  carruselPage.style.display = 'none';
+  message.style.display = 'block';
+  if (!giftOpened) {
+    giftContainer.style.display = 'block';
+  }
+});
+
+/* ✅ Evita error si no existe #gifAnimado */
+setInterval(()=>{
+  const gif = document.getElementById("gifAnimado");
+  if (gif) { gif.src = "bt212.gif?rnd=" + Math.random(); }
+},5000);
+
+function addBalloons(){
+  const positions=[{left:'5vw',top:'10vh'},{left:'8vw',top:'30vh'},{left:'6vw',top:'60vh'},
+    {left:'90vw',top:'20vh'},{left:'87vw',top:'40vh'},{left:'92vw',top:'65vh'},
+    {left:'4vw',top:'80vh'},{left:'95vw',top:'10vh'},{left:'3vw',top:'50vh'},{left:'97vw',top:'30vh'}];
+  positions.forEach(pos=>{
+    const b=document.createElement('div');
+    b.className='balloon';
+    const hue=Math.floor(Math.random()*360);
+    b.style.background=`radial-gradient(circle at top,hsl(${hue},100%,75%),hsl(${hue},100%,50%))`;
+    b.style.left=pos.left;
+    b.style.top=pos.top;
+    document.body.appendChild(b);
+  });
+}
+
+class Firework {
+  constructor() {
+    this.reset();
+  }
+  
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height;
+    this.targetY = Math.random() * canvas.height / 2;
+    this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+    this.exploded = false;
+    this.particles = [];
+    this.speed = Math.random() * 7 + 5; // velocidad de subida
+  }
+  
+  update() {
+    if (!this.exploded) {
+      this.y -= this.speed;
+      if (this.y <= this.targetY) this.explode();
+    } else {
+      this.particles.forEach(p => p.update());
+      this.particles = this.particles.filter(p => p.alpha > 0);
+      if (this.particles.length === 0) this.reset();
+    }
+  }
+  
+  explode() {
+    this.exploded = true;
+    const count = 50 + Math.floor(Math.random() * 50); // más partículas
+    for (let i = 0; i < count; i++) {
+      this.particles.push(new Particle(this.x, this.y, this.color));
+    }
+  }
+  
+  draw() {
+    if (!this.exploded) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    } else {
+      this.particles.forEach(p => p.draw());
+    }
+  }
+}
+
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.radius = Math.random() * 2 + 1;
+    this.alpha = 1;
+    this.speed = Math.random() * 5 + 2;
+    this.angle = Math.random() * Math.PI * 2;
+    this.gravity = 0.05 + Math.random() * 0.05;
+    this.friction = 0.98;
+    this.trail = [];
+  }
+  
+  update() {
+    // guardar posición anterior para rastro
+    this.trail.push({x: this.x, y: this.y});
+    if (this.trail.length > 5) this.trail.shift();
+    
+    // movimiento
+    this.speed *= this.friction;
+    this.x += Math.cos(this.angle) * this.speed;
+    this.y += Math.sin(this.angle) * this.speed + this.gravity;
+    
+    // desaparición
+    this.alpha -= 0.015;
+  }
+  
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    
+    // rastro
+    ctx.beginPath();
+    for (let i = 0; i < this.trail.length; i++) {
+      const point = this.trail[i];
+      ctx.lineTo(point.x, point.y);
+    }
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.radius;
+    ctx.stroke();
+    
+    // partícula principal
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    
+    ctx.restore();
+  }
+}
+
+// Crear varios fuegos
+const fireworks = Array.from({length: 7}, () => new Firework());
+
+function launchFireworks() {
+  function animate() {
+    // fondo degradado
+   const gradient = ctx.createRadialGradient(
+  canvas.width / 2, canvas.height / 2, 0,
+  canvas.width / 2, canvas.height / 2, canvas.height
+);
+
+gradient.addColorStop(0, "#000033");   // azul oscuro centro
+gradient.addColorStop(0.5, "#000033"); // morado intermedio
+gradient.addColorStop(1, "#000000");   // negro borde
+
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+    fireworks.forEach(f => {
+      f.update();
+      f.draw();
+    });
+    
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+</script>
+</body>
+</html>
